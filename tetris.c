@@ -38,7 +38,7 @@ struct Point Shape[][4][4]={
 };
 
 enum { EMPTY, BRICK, WALL };
-char *arTile[]={". ","¡á","¡à"};
+char *arTile[]={". ","â– ","â–¡"};
 int board[BW+2][BH+2];
 int nx,ny;
 int brick,rot;
@@ -123,8 +123,8 @@ void DrawScreen()
      }
 
      gotoxy(50,3);puts("Tetris Ver 1.0");
-     gotoxy(50,5);puts("ÁÂ¿ì:ÀÌµ¿, À§:È¸Àü, ¾Æ·¡:³»¸²");
-     gotoxy(50,6);puts("°ø¹é:ÀüºÎ ³»¸²");
+     gotoxy(50,5);puts("ì¢Œìš°:ì´ë™, ìœ„:íšŒì „, ì•„ë˜:ë‚´ë¦¼");
+     gotoxy(50,6);puts("ê³µë°±:ì „ë¶€ ë‚´ë¦¼");
 }
 
 void DrawBoard()
