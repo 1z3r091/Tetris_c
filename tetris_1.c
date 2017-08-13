@@ -2,31 +2,36 @@
 #include <time.h>
 #include <windows.h>
 
+// Keyboard Button ASCII Code MACRO
 #define LEFT 75
 #define RIGHT 77
 #define UP 72
 #define DOWN 80
 #define ESC 27
+
 #define BX 5
 #define BY 1
-#define BW 10
-#define BH 20
+#define BW 10 // MAX board width
+#define BH 20 // MAX board height
 
-typedef enum { NOCURSOR, SOLIDCURSOR, NORMALCURSOR } CURSOR_TYPE;
-void setcursortype(CURSOR_TYPE c);
-void gotoxy(int x, int y);
+typedef enum { NOCURSOR, SOLIDCURSOR, NORMALCURSOR } CURSOR_TYPE; // setcursortype func enum
+void setcursortype(CURSOR_TYPE c); // cursor on/off func
+void gotoxy(int x, int y); // x,y - coordinate change func
 
-void DrawScreen();
-void DrawBoard();
-BOOL ProcessKey();
-void PrintBrick(BOOL Show);
-int GetAround(int x,int y,int b,int r);
-BOOL MoveDown();
-void TestFull();
+void DrawScreen(); // draw board screen with control interface
+void DrawBoard(); // draw board screen
+BOOL ProcessKey(); // key input process handling
+void PrintBrick(BOOL Show); // show brick on the board
+int GetAround(int x,int y,int b,int r); // check EMPTY space around brick (returns EMPTY, BRICK, WALL)
+BOOL MoveDown(); // move BRICK down (y-coordinate increases)
+void TestFull(); // check whether line is full of BRICKs
 
+// brick x,y - coordinate structure
 struct Point {
      int x,y;
 };
+
+// brick shape structure [7][4][4] - 7 shapes, 4 rotated shapes, 4 x,y coordinates
 struct Point Shape[][4][4]={
      { {0,0,1,0,2,0,-1,0}, {0,0,0,1,0,-1,0,-2}, {0,0,1,0,2,0,-1,0}, {0,0,0,1,0,-1,0,-2} },
      { {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1} },
@@ -37,43 +42,44 @@ struct Point Shape[][4][4]={
      { {0,0,-1,0,1,0,0,1}, {0,0,0,-1,0,1,1,0}, {0,0,-1,0,1,0,0,-1}, {0,0,-1,0,0,-1,0,1} },
 };
 
-enum { EMPTY, BRICK, WALL };
-char *arTile[]={". ","бс","бр"};
-int board[BW+2][BH+2];
-int nx,ny;
-int brick,rot;
+enum { EMPTY, BRICK, WALL }; // EMPTY = 0, BRICK = 1, WALL = 2
+char *arTile[]={". ","бс","бр"}; // Tile shapes ( EMPTY -> . , BRICK -> бс, WALL -> бр)
+int board[BW+2][BH+2]; // max width/height + 2 because of the board edges
+int nx,ny; // current x,y - coordinate of brick
+int brick,rot; // brick = shape, rot = rotated shape
 
 void main()
 {
-     int nFrame, nStay;
-     int x,y;
+     int nFrame, nStay; // used for controlling the frame and speed
+     int x,y; // for loop variables
 
-     setcursortype(NOCURSOR);
-     srand((unsigned)time(NULL));
-     system("cls");
+     setcursortype(NOCURSOR); // hide CURSOR
+     srand((unsigned)time(NULL)); // random func initialize
+     system("cls"); // clear DOS screen
+
      for (x=0;x<BW+2;x++) {
           for (y=0;y<BH+2;y++) {
-              board[x][y] = (y==0 || y==BH+1 || x==0 || x==BW+1) ? WALL:EMPTY;
+              board[x][y] = (y==0 || y==BH+1 || x==0 || x==BW+1) ? WALL:EMPTY; // if x, y == 0 or BW/BH + 1, then WALL
           }
      }
-     DrawScreen();
-     nFrame=20;
+     DrawScreen(); // draw board screen
+     nFrame=20; // frame setting
 
-     for (;1;) {
-          brick= rand() % ((sizeof(Shape)/sizeof(Shape[0])));
-          nx=BW/2;
-          ny=3;
-          rot=0;
-          PrintBrick(TRUE);
+     for (;1;) { // infinite loop
+          brick= rand() % ((sizeof(Shape)/sizeof(Shape[0]))); // get a shape randomly
+          nx=BW/2; // initial brick x - coordinate
+          ny=3; // initial brick y - coordinate
+          rot=0; // initial rotated shape
+          PrintBrick(TRUE); // show brick on the board
 
-          if (GetAround(nx,ny,brick,rot) != EMPTY) break;
-          nStay=nFrame;
-          for (;2;) {
-              if (--nStay == 0) {
-                   nStay=nFrame;
-                   if (MoveDown()) break;
+          if (GetAround(nx,ny,brick,rot) != EMPTY) break; // if space around a brick has no EMPTY space then break
+          nStay=nFrame; // time variable for how long a brick stays on a coordinate
+          for (;2;) { // infinite loop
+              if (--nStay == 0) { // if the time variable equals 0 (=if the staying time is over)
+                   nStay=nFrame; // set time variable to frame value
+                   if (MoveDown()) break; // move down the brick
               }
-              if (ProcessKey()) break;
+              if (ProcessKey()) break; // read key input
               Sleep(1000/20);
           }
      }
