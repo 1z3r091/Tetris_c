@@ -3,10 +3,14 @@
 #include <windows.h>
 
 // MACROS
+// _DEBUG가 필요 없을 경우에는 주석 처리 합니다.
+#define _DEBUG
+
 #define UP 72
 #define LEFT 75
 #define RIGHT 77
 #define DOWN 80
+#define ESC 27
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 20
 #define BOARD_START_X 5
@@ -16,6 +20,7 @@
 #define BLOCK 1
 #define EMPTY 2
 #define NEXT_SPACE 2
+#define BLOCK_NUMBER 2
 
 // GLOBAL VARIABLES
 typedef struct {
@@ -23,13 +28,23 @@ typedef struct {
     int y;
 } Point;
 
+#ifdef _DEBUG
+Point block_shape_coordinate[][4][4] = {
+     { {0,0,1,0,2,0,-1,0}, {0,0,0,1,0,-1,0,-2}, {0,0,1,0,2,0,-1,0}, {0,0,0,1,0,-1,0,-2} },
+     { {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1} },};
+     /*{ {0,0,-1,0,0,-1,1,-1}, {0,0,0,1,-1,0,-1,-1}, {0,0,-1,0,0,-1,1,-1}, {0,0,0,1,-1,0,-1,-1} },
+     { {0,0,-1,-1,0,-1,1,0}, {0,0,-1,0,-1,1,0,-1}, {0,0,-1,-1,0,-1,1,0}, {0,0,-1,0,-1,1,0,-1} }, };
+     */
+#else
 Point block_shape_coordinate[][4][4] = {
      { {0,0,1,0,2,0,-1,0}, {0,0,0,1,0,-1,0,-2}, {0,0,1,0,2,0,-1,0}, {0,0,0,1,0,-1,0,-2} },
      { {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1}, {0,0,1,0,0,1,1,1} },
      { {0,0,-1,0,0,-1,1,-1}, {0,0,0,1,-1,0,-1,-1}, {0,0,-1,0,0,-1,1,-1}, {0,0,0,1,-1,0,-1,-1} },
      { {0,0,-1,-1,0,-1,1,0}, {0,0,-1,0,-1,1,0,-1}, {0,0,-1,-1,0,-1,1,0}, {0,0,-1,0,-1,1,0,-1} }, };
 
+#endif // _DEBUG
 int shape;
+int next_shape;
 int rotation;
 int coordinate;
 int board[BOARD_WIDTH+2][BOARD_HEIGHT+2];
@@ -37,6 +52,8 @@ char block_shape[][BLOCK_SHAPE_SIZE] = {"▩", "▣", "  "};
 int x, y, i;
 int block_x, block_y;
 int frame_time, stay_time;
+int score;
+
 
 // FUNCTION PROTOTYPE
 typedef enum { NOCURSOR, SOLIDCURSOR, NORMALCURSOR } CURSOR_TYPE; // setcursortype func enum
@@ -47,18 +64,124 @@ void initializeBoard(void);
 void drawCompleteBoard(void);
 void drawBoard(void);
 void showBlock(BOOL show);
+void showNextBlock(BOOL show);
 BOOL moveBlock(void);
 BOOL checkSpace(int x, int y, int rotation);
 void testFull(void);
 BOOL keyInput(void);
+void gameStart(void);
+void showStartMenu(void);
+void showGameOver(void);
+void refreshSideBoard(void);
 
 // main start
 int main(void)
 {
-
     srand(time(NULL));
     setCursorType(NOCURSOR);
+
+    showStartMenu();
+    while(TRUE) {
+        gameStart();
+        showGameOver();
+    }
+    return 0;
+}
+// main end
+
+// FUNCTION DEFINITION
+void refreshSideBoard(void)
+{
+    int nx, ny;
+
+    nx = 33;
+    ny = 4;
+
+    gotoXY(nx+2,ny);   printf("                ");
+    gotoXY(nx+2,ny);   printf("Score: %6d", score);
+}
+void showNextBlock(BOOL show)
+{
+    int nx, ny;
+    nx = 38;
+    ny = 10;
+    if (show == TRUE) {
+        for (i = 0; i < 4; i++) {
+            gotoXY(nx + block_shape_coordinate[next_shape][0][i].x*(BLOCK_SHAPE_SIZE-1), ny + block_shape_coordinate[next_shape][0][i].y);
+            printf("%s", block_shape[BLOCK]);
+        }
+    } else if (show == FALSE) {
+        for (i = 0; i < 4; i++) {
+            gotoXY(nx + block_shape_coordinate[next_shape][0][i].x*(BLOCK_SHAPE_SIZE-1), ny + block_shape_coordinate[next_shape][0][i].y);
+            printf("%s", block_shape[EMPTY]);
+        }
+    }
+
+
+}
+void showStartMenu(void)
+{
+    int x,y,frame_time;
+
+    frame_time = 100;
+    x = 5;
+    y = 3;
+
+    while (TRUE) {
+        if (kbhit()) {
+            break;
+        }
+        gotoXY(x,y);   printf("#######   #######   #######   #######   ###   #######");
+        Sleep(frame_time);
+        gotoXY(x,y+1); printf("   #      #            #      #     #    #    #");
+        Sleep(frame_time);
+        gotoXY(x,y+2); printf("   #      #######      #      #######    #    #######");
+        Sleep(frame_time);
+        gotoXY(x,y+3); printf("   #      #            #      #     #    #          #");
+        Sleep(frame_time);
+        gotoXY(x,y+4); printf("   #      #######      #      #     #   ###   #######");
+        Sleep(frame_time);
+        for (;;) {
+            if (kbhit()) {
+                getch();
+                system("cls");
+                return;
+            }
+            gotoXY(x+15,y+12); printf("PRESS ANY KEY TO START");
+            Sleep(frame_time);
+            gotoXY(x+15,y+12); printf("                      ");
+            Sleep(frame_time);
+        }
+    }
+}
+void showGameOver(void)
+{
+    int x, y;
+
+    x = 3;
+    y = 7;
+    gotoXY(x,y);   printf("+---------------------------+");
+    gotoXY(x,y+1); printf("|     Your Score : %6d   |");
+    gotoXY(x,y+2); printf("|                           |");
+    gotoXY(x,y+3); printf("|        GAME OVER          |");
+    gotoXY(x,y+4); printf("|                           |");
+    gotoXY(x,y+5); printf("| Press any key to restart! |");
+    gotoXY(x,y+6); printf("|                           |");
+    gotoXY(x,y+7); printf("+---------------------------+");
+
+    for (;;) {
+        if (kbhit()) {
+            getch();
+            break;
+        }
+    }
+}
+void gameStart(void)
+{
     frame_time = 30;
+    shape = rand() % BLOCK_NUMBER;
+    system("cls");
+
     // 보드판을 만든다
     initializeBoard();
     // 보드 화면을 그린다
@@ -66,12 +189,13 @@ int main(void)
     // 무한루프
     for (;;) {
         // 블럭 모양 설정
-        shape = rand() % 4;
+        next_shape = rand() % BLOCK_NUMBER;
         rotation = 0;
         block_x = 10;
         block_y = 4;
         // 블럭 프린트
         showBlock(TRUE);
+        showNextBlock(TRUE);
         // 블럭이 생성될 공간이 없다 -> break
         if (checkSpace(block_x, block_y, rotation)) {
             break;
@@ -94,13 +218,10 @@ int main(void)
             }
             Sleep(40);
         }
+        showNextBlock(FALSE);
+        shape = next_shape;
     }
-    system("cls");
-    return 0;
 }
-// main end
-
-// FUNCTION DEFINITION
 void setCursorType(CURSOR_TYPE c)
 {
      CONSOLE_CURSOR_INFO CurInfo;
@@ -145,6 +266,10 @@ void initializeBoard(void)
 
 void drawCompleteBoard(void)
 {
+    int nx, ny;
+    nx = 33;
+    ny = 4;
+
     for (x = 0; x < BOARD_WIDTH+2; x++) {
         for (y = 0; y <  BOARD_HEIGHT+2; y++) {
             if (board[x][y] == BOARD_FRAME) {
@@ -154,10 +279,17 @@ void drawCompleteBoard(void)
         }
     }
 
-    gotoXY(33,3);
-    printf("TETRIS");
-    gotoXY(33,5);
-    printf("HAVE FUN~");
+    gotoXY(nx+2,ny);   printf("Score: %6d", score);
+    gotoXY(nx+2,ny+2); printf("Next Shape");
+    gotoXY(nx,ny+3);   printf("+============+");
+    gotoXY(nx,ny+4);   printf("|            |");
+    gotoXY(nx,ny+5);   printf("|            |");
+    gotoXY(nx,ny+6);   printf("|            |");
+    gotoXY(nx,ny+7);   printf("|            |");
+    gotoXY(nx,ny+8);   printf("+============+");
+    gotoXY(nx,ny+10);  printf("  ▲    : Rotate          Space : Hard Drop");
+    gotoXY(nx,ny+11);  printf("◀  ▶ : Left / Right"  );
+    gotoXY(nx,ny+12);  printf("  ▼    : Soft Drop       ESC : Quit");
 }
 void drawBoard(void)
 {
@@ -216,11 +348,13 @@ BOOL moveBlock(void)
 }
 void testFull(void)
 {
+     // 한번에 두개의 라인이 클리어가 되지 않는다 수정 필요 (2017-08-16)
+     int temp_y;
 
+     int combo = 1;
      for (i = 0; i < 4; i++) {
         board[(block_shape_coordinate[shape][rotation][i].x*(BLOCK_SHAPE_SIZE-1)+block_x)/2][block_shape_coordinate[shape][rotation][i].y + block_y] = BLOCK;
      }
-
 
      for (y = BOARD_HEIGHT; y > 1; y--) {
         for (x = 1; x < BOARD_WIDTH + 1; x++) {
@@ -229,14 +363,17 @@ void testFull(void)
             }
         }
         if (x == BOARD_WIDTH + 1) {
-            for (; y > 1; y--) {
+            score += combo * 100;
+            combo++;
+            for (temp_y = y; temp_y > 1; temp_y--) {
                 for (x = 1; x < BOARD_WIDTH + 1; x++) {
-                    board[x][y] = board[x][y-1];
+                    board[x][temp_y] = board[x][temp_y-1];
                 }
             }
+            y++;
         }
      }
-
+     refreshSideBoard();
      drawBoard();
 }
 
@@ -289,6 +426,10 @@ BOOL keyInput(void)
                     while(moveBlock() == FALSE) {
                     }
                     return TRUE;
+                    break;
+                case ESC:
+                    system("cls");
+                    exit(0);
                     break;
                 default:
                     break;
