@@ -33,7 +33,7 @@ int shape;
 int rotation;
 int coordinate;
 int board[BOARD_WIDTH+2][BOARD_HEIGHT+2];
- char block_shape[][BLOCK_SHAPE_SIZE] = {"¢Ì", "¢Ã", "  "};
+char block_shape[][BLOCK_SHAPE_SIZE] = {"¢Ì", "¢Ã", "  "};
 int x, y, i;
 int block_x, block_y;
 int frame_time, stay_time;
@@ -205,11 +205,11 @@ BOOL checkSpace(int x, int y, int rotation)
 }
 BOOL moveBlock(void)
 {
-    showBlock(FALSE);
-    block_y += 1;
     if (checkSpace(block_x, block_y+1, rotation)) {
         return TRUE;
     }
+    showBlock(FALSE);
+    block_y += 1;
     showBlock(TRUE);
 
     return FALSE;
@@ -221,19 +221,20 @@ void testFull(void)
         board[(block_shape_coordinate[shape][rotation][i].x*(BLOCK_SHAPE_SIZE-1)+block_x)/2][block_shape_coordinate[shape][rotation][i].y + block_y] = BLOCK;
      }
 
-     for (;;) {
-         for (x = 1; x < BOARD_WIDTH + 1; x++) {
-            if (board[x][block_y] == EMPTY) {
-                drawBoard();
-                return;
-            }
-         }
 
-         for (x = 1; x < BOARD_WIDTH + 1; x++) {
-             for (y = block_y; y > 1; y--) {
-                board[x][y] = board[x][y-1];
-             }
-         }
+     for (y = BOARD_HEIGHT; y > 1; y--) {
+        for (x = 1; x < BOARD_WIDTH + 1; x++) {
+            if (board[x][y] == EMPTY) {
+                break;
+            }
+        }
+        if (x == BOARD_WIDTH + 1) {
+            for (; y > 1; y--) {
+                for (x = 1; x < BOARD_WIDTH + 1; x++) {
+                    board[x][y] = board[x][y-1];
+                }
+            }
+        }
      }
 
      drawBoard();
