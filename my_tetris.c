@@ -7,7 +7,7 @@
 #include <windows.h>
 
 // MACROS
-// _DEBUG가 필요 없을 경우에는 주석 처리 합니다.
+// _DEBUG가 필요 없을 경우에는 주석 처리 합니다
 #define _DEBUG
 
 #define UP 72
