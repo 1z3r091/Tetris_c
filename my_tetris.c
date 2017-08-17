@@ -1,3 +1,7 @@
+/*
+    Tetris by 1z3r0 ver.1
+*/
+
 #include <stdio.h>
 #include <time.h>
 #include <windows.h>
