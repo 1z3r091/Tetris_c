@@ -7,7 +7,7 @@
 #include <windows.h>
 
 // MACROS
-// _DEBUG∞° « ø‰ æ¯¿ª ∞ÊøÏø°¥¬ ¡÷ºÆ √≥∏Æ «’¥œ¥Ÿ.
+// _DEBUGÍ∞Ä ÌïÑÏöî ÏóÜÏùÑ Í≤ΩÏö∞ÏóêÎäî Ï£ºÏÑù Ï≤òÎ¶¨ Ìï©ÎãàÎã§.
 #define _DEBUG
 
 #define UP 72
@@ -54,11 +54,12 @@ int rotation;
 int coordinate;
 int game_board[BOARD_WIDTH+2][BOARD_HEIGHT+2];
 int copy_game_board[BOARD_WIDTH+2][BOARD_HEIGHT+2];
-char block_shape[][BLOCK_SHAPE_SIZE] = {"¢Ã", "°‡", "  ", "°·"};
+char block_shape[][BLOCK_SHAPE_SIZE] = {"‚ñ©", "‚ñ°", "  ", "‚ñ†"};
 int x, y, i;
 int block_x, block_y;
 int frame_time, stay_time;
 int score;
+
 int stage_level;
 int stage_clear_cnt;
 int clear_cnt;
@@ -84,6 +85,7 @@ void refreshSideBoard(void);
 void showNextStage(void);
 void copyGameBoard(void);
 
+
 // main start
 int main(void)
 {
@@ -91,6 +93,7 @@ int main(void)
     setCursorType(NOCURSOR);
     stage_level = 1; // initial stage level
     stage_clear_cnt = stage_level * 1; // clear line cnt limit for each stage level
+
 
     showStartMenu();
     while(TRUE) {
@@ -102,6 +105,7 @@ int main(void)
 // main end
 
 // FUNCTION DEFINITION
+
 void copyGameBoard(void)
 {
     for (x = 1; x < BOARD_WIDTH + 1; x++) {
@@ -126,6 +130,7 @@ void showNextStage(void)
     drawBoard();
     refreshSideBoard();
 }
+
 void refreshSideBoard(void)
 {
     int nx, ny;
@@ -133,11 +138,13 @@ void refreshSideBoard(void)
     nx = 33;
     ny = 4;
 
+
     // set color
     SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), 7);
 
     gotoXY(nx+2,ny-1); printf("                ");
     gotoXY(nx+2,ny-1); printf("Stage: %6d", stage_level);
+
     gotoXY(nx+2,ny);   printf("                ");
     gotoXY(nx+2,ny);   printf("Score: %6d", score);
 }
@@ -150,6 +157,7 @@ void showNextBlock(BOOL show)
         for (i = 0; i < 4; i++) {
             gotoXY(nx + block_shape_coordinate[next_shape][0][i].x*(BLOCK_SHAPE_SIZE-1), ny + block_shape_coordinate[next_shape][0][i].y);
             printf("%s", block_shape[FILLED_BLOCK]);
+
         }
     } else if (show == FALSE) {
         for (i = 0; i < 4; i++) {
@@ -186,9 +194,9 @@ void showStartMenu(void)
         gotoXY(x,y+4); printf("   #      #######      #      #     #   ###   #######");
         Sleep(frame_time);
         SetConsoleTextAttribute( GetStdHandle( STD_OUTPUT_HANDLE ), x - 1);
-        gotoXY(x+28,y+11);printf("  °„    : Rotate          Space : Hard Drop");
-        gotoXY(x+28,y+12);printf("¢∏  ¢∫ : Left / Right"  );
-        gotoXY(x+28,y+13);printf("  °Â    : Soft Drop       ESC : Quit");
+        gotoXY(x+28,y+11);printf("  ‚ñ≤    : Rotate          Space : Hard Drop");
+        gotoXY(x+28,y+12);printf("‚óÄ  ‚ñ∂ : Left / Right"  );
+        gotoXY(x+28,y+13);printf("  ‚ñº    : Soft Drop       ESC : Quit");
         for (;;) {
             if (kbhit()) {
                 getch();
@@ -231,39 +239,39 @@ void gameStart(void)
     shape = rand() % BLOCK_NUMBER;
     system("cls");
 
-    // ∫∏µÂ∆«¿ª ∏∏µÁ¥Ÿ
+    // Î≥¥ÎìúÌåêÏùÑ ÎßåÎì†Îã§
     initializeBoard();
-    // ∫∏µÂ »≠∏È¿ª ±◊∏∞¥Ÿ
+    // Î≥¥Îìú ÌôîÎ©¥ÏùÑ Í∑∏Î¶∞Îã§
     drawCompleteBoard();
     copyGameBoard();
-    // π´«—∑Á«¡
+    // Î¨¥ÌïúÎ£®ÌîÑ
     for (;;) {
-        // ∫Ì∑∞ ∏æÁ º≥¡§
+        // Î∏îÎü≠ Î™®Ïñë ÏÑ§Ï†ï
         next_shape = rand() % BLOCK_NUMBER;
         rotation = 0;
         block_x = 10;
         block_y = 4;
-        // ∫Ì∑∞ «¡∏∞∆Æ
+        // Î∏îÎü≠ ÌîÑÎ¶∞Ìä∏
         showBlock(TRUE);
         showNextBlock(TRUE);
-        // ∫Ì∑∞¿Ã ª˝º∫µ… ∞¯∞£¿Ã æ¯¥Ÿ -> break
+        // Î∏îÎü≠Ïù¥ ÏÉùÏÑ±Îê† Í≥µÍ∞ÑÏù¥ ÏóÜÎã§ -> break
         if (checkSpace(block_x, block_y, rotation)) {
             break;
         }
 
         stay_time = frame_time;
-        // π´«—∑Á«¡
+        // Î¨¥ÌïúÎ£®ÌîÑ
         for (;;) {
-            // ∫Ì∑∞ «—ƒ≠æø æ∆∑°∑Œ ¿Ãµø
+            // Î∏îÎü≠ ÌïúÏπ∏Ïî© ÏïÑÎûòÎ°ú Ïù¥Îèô
             if (--stay_time == 0) {
                 stay_time = frame_time;
-                if (moveBlock()) { // ¿Ãµø ¡ﬂ ¥ı¿ÃªÛ ≥ª∑¡∞• ∞¯∞£ æ¯¥Ÿ -> break
+                if (moveBlock()) { // Ïù¥Îèô Ï§ë ÎçîÏù¥ÏÉÅ ÎÇ¥Î†§Í∞à Í≥µÍ∞Ñ ÏóÜÎã§ -> break
                     break;
                 }
             }
 
-            // ≈∞∫∏µÂ ¿‘∑¬ ¿–±‚
-            if (keyInput()) { // ¿‘∑¬ µµ¡ﬂ ¥ı¿ÃªÛ ≥ª∑¡∞• ∞¯∞£ æ¯¥Ÿ -> break
+            // ÌÇ§Î≥¥Îìú ÏûÖÎ†• ÏùΩÍ∏∞
+            if (keyInput()) { // ÏûÖÎ†• ÎèÑÏ§ë ÎçîÏù¥ÏÉÅ ÎÇ¥Î†§Í∞à Í≥µÍ∞Ñ ÏóÜÎã§ -> break
                 break;
             }
             Sleep(40);
@@ -330,6 +338,7 @@ void drawCompleteBoard(void)
     }
 
     gotoXY(nx+2,ny-1); printf("Stage: %6d", stage_level);
+
     gotoXY(nx+2,ny);   printf("Score: %6d", score);
     gotoXY(nx+2,ny+2); printf("Next Shape");
     gotoXY(nx,ny+3);   printf("+============+");
@@ -338,6 +347,7 @@ void drawCompleteBoard(void)
     gotoXY(nx,ny+6);   printf("|            |");
     gotoXY(nx,ny+7);   printf("|            |");
     gotoXY(nx,ny+8);   printf("+============+");
+
 }
 void drawBoard(void)
 {
@@ -409,6 +419,7 @@ void testFull(void)
      int temp_y;
      int combo = 1;
 
+     int combo = 1;
      for (i = 0; i < 4; i++) {
         game_board[(block_shape_coordinate[shape][rotation][i].x*(BLOCK_SHAPE_SIZE-1)+block_x)/2][block_shape_coordinate[shape][rotation][i].y + block_y] = FILLED_BLOCK;
      }
