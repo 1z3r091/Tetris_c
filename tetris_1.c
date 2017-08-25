@@ -42,19 +42,12 @@ struct Point Shape[][4][4]={
      { {0,0,-1,0,1,0,0,1}, {0,0,0,-1,0,1,1,0}, {0,0,-1,0,1,0,0,-1}, {0,0,-1,0,0,-1,0,1} },
 };
 
-<<<<<<< HEAD:tetris_1.c
 enum { EMPTY, BRICK, WALL }; // EMPTY = 0, BRICK = 1, WALL = 2
-char *arTile[]={". ","��","��"}; // Tile shapes ( EMPTY -> . , BRICK -> ��, WALL -> ��)
+char *arTile[]={". ","¡á","¡à"}; // Tile shapes ( EMPTY -> . , BRICK -> ¡á, WALL -> ¡à)
 int board[BW+2][BH+2]; // max width/height + 2 because of the board edges
 int nx,ny; // current x,y - coordinate of brick
 int brick,rot; // brick = shape, rot = rotated shape
-=======
-enum { EMPTY, BRICK, WALL };
-char *arTile[]={". ","■","□"};
-int board[BW+2][BH+2];
-int nx,ny;
-int brick,rot;
->>>>>>> origin/master:tetris.c
+
 
 void main()
 {
@@ -137,8 +130,8 @@ void DrawScreen()
      }
 
      gotoxy(50,3);puts("Tetris Ver 1.0");
-     gotoxy(50,5);puts("좌우:이동, 위:회전, 아래:내림");
-     gotoxy(50,6);puts("공백:전부 내림");
+     gotoxy(50,5);puts("ì¢Œìš°:ì´ë™, ìœ„:íšŒì „, ì•„ëž˜:ë‚´ë¦¼");
+     gotoxy(50,6);puts("ê³µë°±:ì „ë¶€ ë‚´ë¦¼");
 }
 
 void DrawBoard()
