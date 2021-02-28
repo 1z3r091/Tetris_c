@@ -2,7 +2,7 @@
 
 ## Description
 
-Tetris source code from soen.kr
+Tetris clone coding inspired by soen.kr
 
 ## Dependencies
 
